@@ -21,4 +21,9 @@ public class ModifiedTransaction extends Transaction{
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +" total: "+total;
+    }
 }

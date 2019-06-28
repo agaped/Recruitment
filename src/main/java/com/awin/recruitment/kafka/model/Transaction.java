@@ -39,4 +39,9 @@ public class Transaction {
     public void setProducts(List<Product> products) {
         this.products = products;
     }
+
+    @Override
+    public String toString() {
+        return "\n{Transaction id: "+id+", saleDate: "+saleDate+", products: "+products+"}";
+    }
 }
