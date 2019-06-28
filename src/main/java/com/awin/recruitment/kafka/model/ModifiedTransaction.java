@@ -1,16 +1,14 @@
 package com.awin.recruitment.kafka.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
 public class ModifiedTransaction extends Transaction{
 
     private BigDecimal total;
 
 
-    public ModifiedTransaction(int id, LocalDate saleDate, List<Product> products, BigDecimal total) {
-        super(id, saleDate, products);
+    public ModifiedTransaction(Transaction t, BigDecimal total) {
+        super(t.getId(), t.getSaleDate(), t.getProducts());
         this.total = total;
     }
 
