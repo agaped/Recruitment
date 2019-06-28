@@ -8,17 +8,11 @@ public class Transaction {
 
     private int id;
     private LocalDate saleDate;
-    private double price;
     private List<Product> products;
 
-    public Transaction(int id) {
-        this.id = id;
-    }
-
-    public Transaction(int id, LocalDate saleDate, double price, List<Product> products) {
+    public Transaction(int id, LocalDate saleDate, List<Product> products) {
         this.id = id;
         this.saleDate = saleDate;
-        this.price = price;
         this.products = products;
     }
 
@@ -36,14 +30,6 @@ public class Transaction {
 
     public void setSaleDate(LocalDate saleDate) {
         this.saleDate = saleDate;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
     }
 
     public List<Product> getProducts() {
