@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Function;
 
-public class ProducerImpl<T> implements Producer<ModifiedTransaction>, Runnable {
+public class ProducerImpl implements Producer<ModifiedTransaction>, Runnable {
 
     private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
     private final Logger LOG = LogManager.getLogger(getClass());

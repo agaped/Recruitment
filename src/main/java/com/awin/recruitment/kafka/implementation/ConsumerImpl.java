@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-public class ConsumerImpl<T> implements Consumer<Transaction>, Runnable {
+public class ConsumerImpl implements Consumer<Transaction>, Runnable {
 
     private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
     private final Logger LOG = LogManager.getLogger(getClass());
