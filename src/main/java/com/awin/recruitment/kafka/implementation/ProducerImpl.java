@@ -8,48 +8,55 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Function;
 
-public class ProducerImpl<T> implements Producer<Transaction>, Runnable {
+public class ProducerImpl<T> implements Producer<ModifiedTransaction>, Runnable {
 
+    private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
     private final Logger LOG = LogManager.getLogger(getClass());
 
     private final BlockingQueue<Transaction> transactions;
+    private final List<ModifiedTransaction> output=new ArrayList<>();
 
     public ProducerImpl(BlockingQueue<Transaction> transactions) {
         this.transactions = transactions;
     }
 
     @Override
-    public void produce(Iterable<Transaction> messages) {
-        this.run();
+    public void produce(Iterable<ModifiedTransaction> messages) {
+        Transaction t;
+        try {
+            while((t =this.transactions.take()).getId()!=EXIT_MESSAGE_ID) {
+                ModifiedTransaction modifiedTransaction = new ModifiedTransaction(t, countTotal(t));
+                this.output.add(modifiedTransaction);
+                LOG.info("Transaction of id {} updated successfully with total {}",
+                        modifiedTransaction.getId(), modifiedTransaction.getTotal());
+                Thread.sleep(2000);
+            }
+        } catch (InterruptedException e) {
+            LOG.error("Error when updating transaction");
+        }
     }
 
     @Override
     public void run() {
-        LOG.info("Producer thread of id {} started", Thread.currentThread().getId());
+        LOG.info("Producer {} started", Thread.currentThread().getId());
 
-        Transaction t;
-        try {
-            while((t =this.transactions.take()).getId()!=999) {
-                new ModifiedTransaction(t, countTotal(t));
-                LOG.info("Transaction of id {} updated successfully with total {}", t.getId(), countTotal(t));
-                Thread.sleep(2000);
-            }
-            } catch (InterruptedException e) {
-                LOG.error("Error when updating transaction");
-            }
-        LOG.info("Producer thread of id {} finished", Thread.currentThread().getId());
+        produce(this.output);
+
+        LOG.info("Producer {} finished", Thread.currentThread().getId());
     }
 
     private BigDecimal countTotal(Transaction t) {
         return t.getProducts().stream()
-                .map(getPricesAsStream())
+                .map(getPrices())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private Function<Product, BigDecimal> getPricesAsStream() {
+    private Function<Product, BigDecimal> getPrices() {
         return Product::getPrice;
     }
 }

@@ -6,21 +6,21 @@ import java.util.List;
 
 public class Transaction {
 
-    private int id;
+    private long id;
     private LocalDate saleDate;
     private List<Product> products;
 
-    public Transaction(int id, LocalDate saleDate, List<Product> products) {
+    public Transaction(long id, LocalDate saleDate, List<Product> products) {
         this.id = id;
         this.saleDate = saleDate;
         this.products = products;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

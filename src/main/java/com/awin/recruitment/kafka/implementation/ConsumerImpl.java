@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class ConsumerImpl<T> implements Consumer<Transaction>, Runnable {
 
+    private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
     private final Logger LOG = LogManager.getLogger(getClass());
 
     private final BlockingQueue<Transaction> transactions;
@@ -22,28 +23,32 @@ public class ConsumerImpl<T> implements Consumer<Transaction>, Runnable {
 
     @Override
     public void consume(Iterable<Transaction> messages) {
-        messages.forEach(t -> this.input.add(t));
-        LOG.info("data consumed");
+        messages.forEach(this.input::add);
+        LOG.info("Data consumed");
     }
 
     @Override
     public void run() {
-        LOG.info("Consumer thread of id {} started", Thread.currentThread().getId());
+        LOG.info("Consumer {} started", Thread.currentThread().getId());
         input.forEach(t ->
         {
             try {
                 this.transactions.put(t);
                 LOG.info("Transaction of id {} consumed successfully", t.getId());
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 LOG.error("Error when processing transaction of id {}", t.getId());
             }
         });
+        sendExitMessage();
+        LOG.info("Consumer {} finished", Thread.currentThread().getId());
+    }
+
+    private void sendExitMessage() {
         try {
-            this.transactions.put(new Transaction(999,null,null));
+            this.transactions.put(new Transaction(EXIT_MESSAGE_ID,null,null));
         } catch (InterruptedException e) {
-            LOG.error("Error when generating exit transaction id");
+            LOG.error("Error when generating exit message");
         }
-        LOG.info("Consumer thread of id {} finished", Thread.currentThread().getId());
     }
 }
