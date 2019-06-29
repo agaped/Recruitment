@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
 public class ConsumerImpl implements Consumer<Transaction>, Runnable {
 
     private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
-    private final Logger LOG = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     private final BlockingQueue<Transaction> transactions;
     private final List<Transaction> input=new ArrayList<>();
@@ -24,31 +24,33 @@ public class ConsumerImpl implements Consumer<Transaction>, Runnable {
     @Override
     public void consume(Iterable<Transaction> messages) {
         messages.forEach(this.input::add);
-        LOG.info("Data consumed");
+        log.info("Data consumed");
     }
 
     @Override
     public void run() {
-        LOG.info("Consumer {} started", Thread.currentThread().getId());
+        log.info("Consumer {} started", Thread.currentThread().getId());
         input.forEach(t ->
         {
             try {
                 this.transactions.put(t);
-                LOG.info("Transaction of id {} consumed successfully", t.getId());
+                log.info("Transaction of id {} consumed successfully", t.getId());
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                LOG.error("Error when processing transaction of id {}", t.getId());
+                Thread.currentThread().interrupt();
+                log.error("Error when processing transaction of id {}", t.getId());
             }
         });
         sendExitMessage();
-        LOG.info("Consumer {} finished", Thread.currentThread().getId());
+        log.info("Consumer {} finished", Thread.currentThread().getId());
     }
 
     private void sendExitMessage() {
         try {
             this.transactions.put(new Transaction(EXIT_MESSAGE_ID,null,null));
         } catch (InterruptedException e) {
-            LOG.error("Error when generating exit message");
+            Thread.currentThread().interrupt();
+            log.error("Error when generating exit message");
         }
     }
 }

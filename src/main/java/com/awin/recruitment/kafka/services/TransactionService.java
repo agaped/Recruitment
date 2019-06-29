@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 public class TransactionService<T> {
 
-    private final Logger LOG = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     private final Consumer<T> consumer;
     private final Producer<T> producer;
@@ -18,7 +18,7 @@ public class TransactionService<T> {
     }
 
     public void processTransactions(Iterable<T> messages) {
-        LOG.info("Transaction processing started ...");
+        log.info("Transaction processing started ...");
 
         this.consumer.consume(messages);
 
@@ -31,9 +31,10 @@ public class TransactionService<T> {
             consumerThread.join();
             producerThread.join();
         } catch (InterruptedException e) {
-            LOG.error("Transaction processing interrupted");
+            Thread.currentThread().interrupt();
+            log.error("Transaction processing interrupted");
         }
 
-        LOG.info("Transaction processing finished");
+        log.info("Transaction processing finished");
     }
 }

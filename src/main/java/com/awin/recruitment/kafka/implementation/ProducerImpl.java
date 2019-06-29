@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class ProducerImpl implements Producer<ModifiedTransaction>, Runnable {
 
     private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
-    private final Logger LOG = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     private final BlockingQueue<Transaction> transactions;
     private final List<ModifiedTransaction> output=new ArrayList<>();
@@ -32,22 +32,23 @@ public class ProducerImpl implements Producer<ModifiedTransaction>, Runnable {
             while((t =this.transactions.take()).getId()!=EXIT_MESSAGE_ID) {
                 ModifiedTransaction modifiedTransaction = new ModifiedTransaction(t, countTotal(t));
                 this.output.add(modifiedTransaction);
-                LOG.info("Transaction of id {} updated successfully with total {}",
+                log.info("Transaction of id {} updated successfully with total {}",
                         modifiedTransaction.getId(), modifiedTransaction.getTotal());
                 Thread.sleep(2000);
             }
         } catch (InterruptedException e) {
-            LOG.error("Error when updating transaction");
+            Thread.currentThread().interrupt();
+            log.error("Error when updating transaction");
         }
     }
 
     @Override
     public void run() {
-        LOG.info("Producer {} started", Thread.currentThread().getId());
+        log.info("Producer {} started", Thread.currentThread().getId());
 
         produce(this.output);
 
-        LOG.info("Producer {} finished", Thread.currentThread().getId());
+        log.info("Producer {} finished", Thread.currentThread().getId());
     }
 
     private BigDecimal countTotal(Transaction t) {
