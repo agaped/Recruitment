@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Function;
@@ -59,5 +60,9 @@ public class ProducerImpl implements Producer<ModifiedTransaction>, Runnable {
 
     private Function<Product, BigDecimal> getPrices() {
         return Product::getPrice;
+    }
+
+    public List<ModifiedTransaction> getOutput() {
+        return Collections.unmodifiableList(this.output);
     }
 }

@@ -6,6 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -30,7 +32,7 @@ public class ConsumerImpl implements Consumer<Transaction>, Runnable {
     @Override
     public void run() {
         log.info("Consumer {} started", Thread.currentThread().getId());
-        input.forEach(t ->
+        this.input.forEach(t ->
         {
             try {
                 this.transactions.put(t);
@@ -52,5 +54,9 @@ public class ConsumerImpl implements Consumer<Transaction>, Runnable {
             Thread.currentThread().interrupt();
             log.error("Error when generating exit message");
         }
+    }
+
+    public Collection<Transaction> getTransactions() {
+        return Collections.unmodifiableCollection(this.transactions);
     }
 }
