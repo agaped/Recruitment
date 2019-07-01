@@ -104,10 +104,30 @@
         <constructor-arg index="1" ref="date"/>
         <constructor-arg index="2">
             <list>
+                <ref bean="moto1"/>
+                <ref bean="moto2"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean name="transaction4" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="4"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
                 <ref bean="car1"/>
                 <ref bean="car2"/>
                 <ref bean="car3"/>
                 <ref bean="car4"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean name="transaction5" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="5"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
+                <ref bean="car1"/>
+                <ref bean="car2"/>
             </list>
         </constructor-arg>
     </bean>
@@ -116,18 +136,19 @@
         <ref bean="transaction1"/>
         <ref bean="transaction2"/>
         <ref bean="transaction3"/>
+        <ref bean="transaction4"/>
     </util:list>
 
     <bean name="transferQueue" class="java.util.concurrent.ArrayBlockingQueue">
         <constructor-arg value="2"/>
     </bean>
 
-    <bean name="consumer" class="com.awin.recruitment.kafka.implementation.ConsumerImpl">
+    <bean name="consumer" class="com.awin.recruitment.kafka.implementation.TransactionConsumer">
         <constructor-arg>
             <ref bean="transferQueue"/>
         </constructor-arg>
     </bean>
-    <bean name="producer" class="com.awin.recruitment.kafka.implementation.ProducerImpl">
+    <bean name="producer" class="com.awin.recruitment.kafka.implementation.SummarizedTransactionProducer">
         <constructor-arg>
             <ref bean="transferQueue"/>
         </constructor-arg>

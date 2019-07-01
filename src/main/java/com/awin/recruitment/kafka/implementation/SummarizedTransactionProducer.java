@@ -1,41 +1,37 @@
 package com.awin.recruitment.kafka.implementation;
 
-import com.awin.recruitment.kafka.model.ModifiedTransaction;
-import com.awin.recruitment.kafka.model.Product;
+import com.awin.recruitment.kafka.model.SummarizedTransaction;
 import com.awin.recruitment.kafka.model.Transaction;
 import com.awin.recruitment.library.Producer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.function.Function;
 
-public class ProducerImpl implements Producer<ModifiedTransaction>, Runnable {
+public class SummarizedTransactionProducer implements Producer<SummarizedTransaction>, Runnable {
 
     private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
     private final Logger log = LogManager.getLogger(getClass());
 
     private final BlockingQueue<Transaction> transactions;
-    private final List<ModifiedTransaction> output=new ArrayList<>();
+    private final List<SummarizedTransaction> output=new ArrayList<>();
 
-    public ProducerImpl(BlockingQueue<Transaction> transactions) {
+    public SummarizedTransactionProducer(BlockingQueue<Transaction> transactions) {
         this.transactions = transactions;
     }
 
     @Override
-    public void produce(Iterable<ModifiedTransaction> messages) {
+    public void produce(Iterable<SummarizedTransaction> messages) {
         Transaction t;
         try {
             while((t =this.transactions.take()).getId()!=EXIT_MESSAGE_ID) {
-                ModifiedTransaction modifiedTransaction = new ModifiedTransaction(t, countTotal(t));
-                this.output.add(modifiedTransaction);
+                SummarizedTransaction summarizedTransaction = SummarizedTransaction.sumTransaction(t);
+                this.output.add(summarizedTransaction);
                 log.info("Transaction of id {} updated successfully with total {}",
-                        modifiedTransaction.getId(), modifiedTransaction.getTotal());
-                Thread.sleep(2000);
+                        summarizedTransaction.getId(), summarizedTransaction.getTotal());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -52,17 +48,7 @@ public class ProducerImpl implements Producer<ModifiedTransaction>, Runnable {
         log.info("Producer {} finished", Thread.currentThread().getId());
     }
 
-    private BigDecimal countTotal(Transaction t) {
-        return t.getProducts().stream()
-                .map(getPrices())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private Function<Product, BigDecimal> getPrices() {
-        return Product::getPrice;
-    }
-
-    public List<ModifiedTransaction> getOutput() {
+    public List<SummarizedTransaction> getOutput() {
         return Collections.unmodifiableList(this.output);
     }
 }

@@ -5,21 +5,22 @@ import com.awin.recruitment.library.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-public class ConsumerImpl implements Consumer<Transaction>, Runnable {
+public class TransactionConsumer implements Consumer<Transaction>, Runnable {
+    private final Logger log = LogManager.getLogger(getClass());
 
     private static final long EXIT_MESSAGE_ID = Long.MIN_VALUE;
-    private final Logger log = LogManager.getLogger(getClass());
+    private static final LocalDate EXIT_MESSAGE_DATE = LocalDate.of(1,1,1);
 
     private final BlockingQueue<Transaction> transactions;
     private final List<Transaction> input=new ArrayList<>();
 
-    public ConsumerImpl(BlockingQueue<Transaction> transactions) {
+    public TransactionConsumer(BlockingQueue<Transaction> transactions) {
         this.transactions = transactions;
     }
 
@@ -32,31 +33,28 @@ public class ConsumerImpl implements Consumer<Transaction>, Runnable {
     @Override
     public void run() {
         log.info("Consumer {} started", Thread.currentThread().getId());
-        this.input.forEach(t ->
-        {
+        this.input.forEach(this::putTransaction);
+        this.sendExitMessage();
+        log.info("Consumer {} finished", Thread.currentThread().getId());
+    }
+
+    private void putTransaction(Transaction t) {
             try {
                 this.transactions.put(t);
                 log.info("Transaction of id {} consumed successfully", t.getId());
-                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.error("Error when processing transaction of id {}", t.getId());
             }
-        });
-        sendExitMessage();
-        log.info("Consumer {} finished", Thread.currentThread().getId());
     }
 
     private void sendExitMessage() {
         try {
-            this.transactions.put(new Transaction(EXIT_MESSAGE_ID,null,null));
+            this.transactions.put(new Transaction(EXIT_MESSAGE_ID,EXIT_MESSAGE_DATE,
+                    Collections.emptyList()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("Error when generating exit message");
         }
-    }
-
-    public Collection<Transaction> getTransactions() {
-        return Collections.unmodifiableCollection(this.transactions);
     }
 }

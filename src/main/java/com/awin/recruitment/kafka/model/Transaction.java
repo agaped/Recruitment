@@ -41,6 +41,25 @@ public class Transaction {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if(obj==null){
+            return false;
+        }
+        if (obj instanceof Transaction) {
+            Transaction other=(Transaction) obj;
+            return this.id==other.id &&
+                    this.saleDate.equals(other.saleDate) &&
+                    this.products.equals(other.products);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "\n{Transaction id: "+id+", saleDate: "+saleDate+", products: "+products+"}";
     }
