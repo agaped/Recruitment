@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
        profile="development">
 
     <!-- configuration -->
@@ -15,6 +15,148 @@
         </property>
         <property name="searchSystemEnvironment" value="true"/>
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+    </bean>
+
+
+    <bean name="bike1" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="bike1"/>
+        <constructor-arg index="1" value="2333.90"/>
+    </bean>
+    <bean name="bike2" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="bike2"/>
+        <constructor-arg index="1" value="1800.50"/>
+    </bean>
+    <bean name="bike3" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="bike3"/>
+        <constructor-arg index="1" value="3287.00"/>
+    </bean>
+    <bean name="bike4" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="bike4"/>
+        <constructor-arg index="1" value="2500.70"/>
+    </bean>
+
+    <bean name="moto1" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="moto1"/>
+        <constructor-arg index="1" value="5600.00"/>
+    </bean>
+    <bean name="moto2" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="moto2"/>
+        <constructor-arg index="1" value="6789.90"/>
+    </bean>
+    <bean name="moto3" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="moto3"/>
+        <constructor-arg index="1" value="5450.50"/>
+    </bean>
+    <bean name="moto4" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="moto4"/>
+        <constructor-arg index="1" value="6700.99"/>
+    </bean>
+
+    <bean name="car1" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="car1"/>
+        <constructor-arg index="1" value="11000.00"/>
+    </bean>
+    <bean name="car2" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="car2"/>
+        <constructor-arg index="1" value="12500.00"/>
+    </bean>
+    <bean name="car3" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="car3"/>
+        <constructor-arg index="1" value="9999.99"/>
+    </bean>
+    <bean name="car4" class="com.awin.recruitment.kafka.model.Product">
+        <constructor-arg index="0" value="car4"/>
+        <constructor-arg index="1" value="8800.80"/>
+    </bean>
+
+    <bean id="date" class="java.time.LocalDate" >
+        <constructor-arg index="0" value="2019"/>
+        <constructor-arg index="1" value="5"/>
+        <constructor-arg index="2" value="12"/>
+    </bean>
+
+    <bean name="transaction1" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="1"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
+                <ref bean="bike1"/>
+                <ref bean="bike2"/>
+                <ref bean="bike3"/>
+                <ref bean="bike4"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean name="transaction2" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="2"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
+                <ref bean="moto1"/>
+                <ref bean="moto2"/>
+                <ref bean="moto3"/>
+                <ref bean="moto4"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean name="transaction3" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="3"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
+                <ref bean="moto1"/>
+                <ref bean="moto2"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean name="transaction4" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="4"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
+                <ref bean="car1"/>
+                <ref bean="car2"/>
+                <ref bean="car3"/>
+                <ref bean="car4"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean name="transaction5" class="com.awin.recruitment.kafka.model.Transaction">
+        <constructor-arg index="0" value="5"/>
+        <constructor-arg index="1" ref="date"/>
+        <constructor-arg index="2">
+            <list>
+                <ref bean="car1"/>
+                <ref bean="car2"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <util:list id="transactions" value-type="com.awin.recruitment.kafka.model.Transaction">
+        <ref bean="transaction1"/>
+        <ref bean="transaction2"/>
+        <ref bean="transaction3"/>
+        <ref bean="transaction4"/>
+    </util:list>
+
+    <bean name="transferQueue" class="java.util.concurrent.ArrayBlockingQueue">
+        <constructor-arg value="2"/>
+    </bean>
+
+    <bean name="consumer" class="com.awin.recruitment.kafka.implementation.TransactionConsumer">
+        <constructor-arg>
+            <ref bean="transferQueue"/>
+        </constructor-arg>
+    </bean>
+    <bean name="producer" class="com.awin.recruitment.kafka.implementation.SummarizedTransactionProducer">
+        <constructor-arg>
+            <ref bean="transferQueue"/>
+        </constructor-arg>
+    </bean>
+
+    <bean name="transactionService" class="com.awin.recruitment.kafka.services.TransactionService">
+        <constructor-arg index="0" ref="consumer"/>
+        <constructor-arg index="1" ref="producer"/>
     </bean>
 
 </beans>
